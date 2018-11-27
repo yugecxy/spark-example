@@ -1,3 +1,5 @@
+package cn.xiaoyu.example
+
 import org.apache.spark.sql.SparkSession
 
 object test {

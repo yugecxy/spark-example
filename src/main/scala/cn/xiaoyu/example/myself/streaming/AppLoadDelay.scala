@@ -1,18 +1,16 @@
-package cn.yuge.spark.streaming
+package cn.xiaoyu.example.myself.streaming
 
-import java.lang.Long
-import java.sql.{Date}
+import java.sql.Date
 import java.text.SimpleDateFormat
 
 import com.alibaba.fastjson.JSON
-import org.apache.spark.streaming.kafka010.ConsumerStrategies.Subscribe
-import org.apache.spark.streaming.kafka010.LocationStrategies.PreferConsistent
-import org.apache.spark.streaming.kafka010.{CanCommitOffsets, HasOffsetRanges, KafkaUtils, OffsetRange}
 import com.fasterxml.jackson.databind.deser.std.StringDeserializer
 import org.apache.spark.SparkConf
 import org.apache.spark.rdd.RDD
+import org.apache.spark.streaming.kafka010.ConsumerStrategies.Subscribe
+import org.apache.spark.streaming.kafka010.LocationStrategies.PreferConsistent
+import org.apache.spark.streaming.kafka010.{CanCommitOffsets, HasOffsetRanges, KafkaUtils, OffsetRange}
 import org.apache.spark.streaming.{Durations, StreamingContext}
-import scala.collection.JavaConverters._
 
 /**
   * hellobike需求，每5分钟聚合一次，统计5分钟内的app平均启动时长和5分钟内的app启动次数
@@ -20,7 +18,7 @@ import scala.collection.JavaConverters._
 object AppLoadDelay {
 
 
-  var pointTime: Long = null
+  var pointTime: Long = 0
 
   def main(args: Array[String]): Unit = {
     if (args.length != 2) {
@@ -61,7 +59,7 @@ object AppLoadDelay {
         if (!rdd.isEmpty()) {
           processRDD(rdd.map(_.value()))
         } else {
-          writeToDb("unknow", Long.valueOf(0), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+          writeToDb("unknow", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
         }
       }
       stream.asInstanceOf[CanCommitOffsets].commitAsync(offsetRanges)
@@ -88,7 +86,7 @@ object AppLoadDelay {
       .filter(_._1 != "ERROR")
       .groupByKey()
       .map(x => {
-        var minTime: Long = Long.MAX_VALUE
+        var minTime: Long = Long.MaxValue
         var maxTime, configDataTime, rideConfigTime = 0L
         val format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS")
         var appVersion, netWork, osType = ""
@@ -173,7 +171,7 @@ object AppLoadDelay {
     val osType = key.split("##")(2)
     val ptime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(pointTime))
     val contentMap = Map("averageTimeByMinute" -> avgTime, "pointTime" -> ptime, "du1sLow" -> du1sLow, "du1To2s" -> du1To2s, "du2To3s" -> du2To3s, "du3To4s" -> du3To4s, "du4To5s" -> du4To5s, "du5To6s" -> du5To6s, "du6To7s" -> du6To7s, "du7To8s" -> du7To8s, "du8To9s" -> du8To9s, "du9To10s" -> du9To10s, "du10Over" -> du10Over)
-    val content = JSON.toJSON(contentMap.asJava).toString
+    val content = JSON.toJSON(contentMap).toString
     //    OssBikeDao.addOrUpdateAppLoadDelay(appVersion, netWork, osType, new Timestamp(pointTime), content)
   }
 }

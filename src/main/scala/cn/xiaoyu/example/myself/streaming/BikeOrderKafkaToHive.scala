@@ -1,8 +1,7 @@
-package cn.yuge.spark.streaming
+package cn.xiaoyu.example.myself.streaming
 
 import java.util.Date
 
-import cn.yuge.spark.utils.StringsUtil
 import com.alibaba.fastjson.JSON
 import org.apache.commons.lang3.time.FastDateFormat
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -86,12 +85,14 @@ object BikeOrderKafkaToHive {
   def processRdd(lineRdd: RDD[String]): RDD[Row] = {
     lineRdd.map(data => { //去除脏数据
       try {
-        val time = StringsUtil.getRexString(data, "(,[\\d-]*?\\s[\\d:.]*?,)").replace(",", "")
+        //        val time = StringsUtil.getRexString(data, "(,[\\d-]*?\\s[\\d:.]*?,)").replace(",", "")
+        val time = ""
         val pt = time.split(" ")(0).replace("-", "").trim
         if (pt.size != 8 || isPtValid(pt, 2, -2)) {
           null
         } else {
-          val jsonData = StringsUtil.getRexString(data, "(\\{\"condition.+\\})") //提取json字符串
+          //          val jsonData = StringsUtil.getRexString(data, "(\\{\"condition.+\\})") //提取json字符串
+          val jsonData = ""
           JSON.parseObject(jsonData).getJSONObject("entityMata").getString("metric") //检测jsonData是否为合规的json
           (time, pt, jsonData)
         }
